@@ -5,104 +5,116 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Sensei;
+use \Helper\Constants;
+use Config;
+use Illuminate\Http\Request;
+use Input;
+use App\Traits\Sensei\SenseiAction;
+
+
+use Exception;
 
 class SenseiController extends Controller
 {
+    use SenseiAction;
     /*
     |--------------------------------------------------------------------------
-    | Login Controller
+    | Sensei Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles authenticating users for the application and
     | redirecting them to your home screen. The controller uses a trait
     | to conveniently provide its functionality to your applications.
-    |
+    | 
     */
-
     public function index()
     {
-
-        // $mentors  = $this->getListMentors();
-        // print_r(json_encode($data['mentors'], JSON_PRETTY_PRINT));
-        // exit;
-        // return view("admin/senseis", ['mentors' => $mentors]);
         return view("admin/sensei/list");
     }
 
 
+    /** 
+    * Get list for all mentors(sensei's) 
+    *
+    */
     public function getListMentors(){
-		$authToken = \Config('constant.jwt_token'); 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.zoom.us/v2/users/?page_number=1&page_size=100&status=active",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "authorization: Bearer ".$authToken,
-                "content-type: application/json"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
 
-        return json_decode($response)->users;
-        // if ($err) {
-        //     echo "cURL Error #:" . $err;
-        // } else {
-        //     return json_decode($response)->users;
-        // }
-    }
+        try {
+            // Get all sensei's
+            $users = config('comman.table_modal.senseis')::get();
 
+            return json_decode($users);
+        } catch (Exception $e) {
+            throw new Exception(GET_SENSEI_ERROR_MSG, INTERNAL_ERROR_CODE);
+        }
+    } //End function
 
+    /** 
+    * Sync all mentor's from third party api(Zoom) with local DB 
+    *
+    */
     public function syncSenseisToDB()
     {
         try {
-        $authToken = \Config('constant.jwt_token'); 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.zoom.us/v2/users/?page_number=1&page_size=100&status=active",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "authorization: Bearer ".$authToken,
-                "content-type: application/json"
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
+            // Get all sensei's from zoom api
+            $senseis = $this->getAllSenseisFromZoom();
 
-        $senseis = json_decode($response)->users;
+            // Sync with our local DB
+            $senseis = $this->syncSenseisWithLocalDB($senseis);
 
-        // foreach ($senseis as $key => $sensei) {
-        //     $data = Sensei::create([
-        //         'first_name' => 
-        //     ]);
-        // }
-        // return json_decode($response)->users;
+            // Get from local DB
+            $users = config('comman.table_modal.senseis')::get();
 
-
+            return json_decode($users);
         } catch (Exception $e) {
-            
+            throw new Exception(SYNC_DB_ERROR_MSG, INTERNAL_ERROR_CODE);    
         }
-    }
+    } //End function
+
+
+    /** 
+    * Truncate table
+    *
+    */
+    public function truncateTable()
+    {
+        try {
+            $truncate = config('comman.table_modal.senseis')::truncate();
+            if($truncate) {
+                return TRUNCATE_SUCCESS_MSG;
+            }
+        } catch (Exception $e) {
+            throw new Exception(TRUNCATE_ERROR_MSG, INTERNAL_ERROR_CODE);
+        }
+    } //End function
+
+
 
     public function getSenseiById($id)
     {
         try {
-            
+            $senseiObj = $this->getSenseiObjById($id);
+
+            return view("admin/sensei/details", ['senseiObj' => $senseiObj]);
         } catch (Exception $e) {
             
         }
-    }
+    } //End function
+
+
+    public function updateProfile(Request $request)
+    {
+        try {
+           $isUpdated = $this->updateSingleSensei($request);
+           if($isUpdated) {
+                return redirect()->back()->with('message', 'Successfully updated profile');
+           }
+
+        return $name;
+        } catch (Exception $e) {
+            
+        }
+    } //End function
 
 }

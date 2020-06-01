@@ -6,11 +6,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Sensei extends Authenticatable
+class Role extends Authenticatable
 {
     use Notifiable;
 
-    protected $table = 'mentor_info';
+    protected $table = 'roles';
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +18,7 @@ class Sensei extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name','last_name', 'status', 'pic_url', 'm_id', 'phone_number', 'dept', 'bio', 'created', 'email',
+        'name', 'display_name'
     ];
 
 

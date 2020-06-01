@@ -364,7 +364,7 @@ $(document).ready(function() {
                 ((item.first_name || item.last_name)  ?  (item.first_name + '' + item.last_name) : '' ) +'</td><td>'+item.email+'</td><td>'+(item.bio ? item.bio : '---')+'</td><td>'+
                     (item.dept ? item.dept : '---')+'</td><td>'+(item.status=='active' ? '<span class="label info">active</span>' : '<span class="label danger">in-active</span>')+
                     '</td><td>'+'<span>'+
-                        '  <a href="/admin/sensei/details/'+item.id+'"><span class="fa fa-edit "></span></a>' + 
+                        '  <a href="/admin/sensei/details/'+item.m_id+'"><span class="fa fa-edit "></span></a>' + 
                         '  <a><span class="fa fa-window-close remove_list"></span></a>'
                     +'</span>'+'</td></tr>'
                })

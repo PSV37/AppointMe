@@ -3,7 +3,23 @@
 @section('title', 'AdminLTE')
 
 @section('content_header')
-    <h1 class="m-0 text-dark">Profile </h1>
+
+<div class="row">
+        <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title m-0 text-dark">Profile</h1>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- <h1 class="m-0 text-dark">Senseis</h1> -->
+   @if(Session::has('message'))
+      <div class="alert alert-success alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+      {{Session::get('message')}}
+      </div>
+   @endif
 @stop
 
 @section('content')
@@ -23,13 +39,14 @@
               <div class="card-body box-profile">
                 <div class="text-center">
                   <img class="profile-user-img img-fluid img-circle"
-                       src="https://adminlte.io/themes/v3/dist/img/user4-128x128.jpg"
+                       src="{{ $senseiObj->pic_url }}"
                        alt="User profile picture">
                 </div>
 
-                <h3 class="profile-username text-center">Nina Mcintire</h3>
+                <h3 class="profile-username text-center">{{ $senseiObj->first_name }}  {{ $senseiObj->last_name }}</h3>
 
-                <p class="text-muted text-center">Software Engineer</p>
+                <p class="text-muted text-center">@if($senseiObj->status=='active') <button type="button" class="btn btn-block bg-gradient-success disabled">Active</button> @else  <button type="button" class="btn btn-block bg-gradient-danger disabled">In-active</button> @endif
+                </p>
 
                 <ul class="list-group list-group-unbordered mb-3">
                   <li class="list-group-item">
@@ -43,7 +60,7 @@
                   </li>
                 </ul>
 
-                <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                <a href="#" class="btn btn-primary btn-block"><b>Create as Admin</b></a>
               </div>
               <!-- /.card-body -->
             </div>
@@ -172,6 +189,7 @@
                         <img class="img-circle img-bordered-sm" src="https://adminlte.io/themes/v3/dist/img/user1-128x128.jpg" alt="User Image">
                         <span class="username">
                           <a href="#">Adam Jones</a>
+
                           <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
                         </span>
                         <span class="description">Posted 5 photos - 5 days ago</span>
@@ -313,49 +331,58 @@
                   <!-- /.tab-pane -->
 
                   <div class="tab-pane" id="settings">
-                    <form class="form-horizontal">
+                    <form class="form-horizontal" action="/admin/update/profile" method="post">
                       <div class="form-group row">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
+                        <label for="first_name" class="col-sm-2 col-form-label">First Name</label>
                         <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputName" placeholder="Name">
+                          {!! csrf_field() !!}
+                          <input type="hidden" class="form-control" id="url" value="/admin/update/profile">
+                          <input type="hidden" class="form-control" id="m_id" name="m_id" value="{{$senseiObj->m_id}}">
+                          <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name" value="{{ old('first_name') ?? $senseiObj->first_name ?? '' }}">
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+                        <label for="last_name" class="col-sm-2 col-form-label">Last Name</label>
                         <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                          <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name" value="{{ old('last_name') ?? $senseiObj->last_name ?? '' }}">
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="inputName2" class="col-sm-2 col-form-label">Name</label>
+                        <label for="email" class="col-sm-2 col-form-label">Email</label>
                         <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputName2" placeholder="Name">
+                          <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="{{ old('email') ?? $senseiObj->email ?? '' }}">
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="inputExperience" class="col-sm-2 col-form-label">Experience</label>
+                        <label for="dept" class="col-sm-2 col-form-label">Department</label>
                         <div class="col-sm-10">
-                          <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
+                          <input type="text" class="form-control" name="dept" id="dept" placeholder="department" value="{{ old('dept') ?? $senseiObj->dept ?? '' }}">
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="inputSkills" class="col-sm-2 col-form-label">Skills</label>
+                        <label for="phone_number" class="col-sm-2 col-form-label">Phone Number</label>
                         <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
+                          <input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" value="{{ old('phone_number') ?? $senseiObj->phone_number ?? '' }}">
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="bio" class="col-sm-2 col-form-label">Bio</label>
+                        <div class="col-sm-10">
+                          <textarea class="form-control" id="bio"  name="bio" placeholder="Write your bio...">{{ old('bio') ?? $senseiObj->bio ?? '' }}</textarea>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="status" class="col-sm-2 col-form-label">Status</label>
+                        <div class="col-sm-10">
+                                       <!-- Bootstrap Switch -->
+                          <input type="checkbox" id="status"  name="status"  data-bootstrap-switch data-off-color="danger" data-on-color="success" value="{{ old('status') ?? $senseiObj->status ?? '' }}" {{ old('status', $senseiObj->status) === 'active' ? 'checked' : '' }}>
+                       
                         </div>
                       </div>
                       <div class="form-group row">
                         <div class="offset-sm-2 col-sm-10">
-                          <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                          <button type="submit" class="btn btn-danger">Submit</button>
+                          <button type="submit" class="btn btn-block btn-success btn-sm" >Update Profile</button>
+                          <!-- <button type="submit" class="btn btn-danger">Update</button> -->
                         </div>
                       </div>
                     </form>
@@ -377,4 +404,63 @@
         </div>
     </div>
 @stop
-  
+  <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+      // var name = $('#name').val();
+
+        $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    });
+
+
+
+      $('body').on('click', '#updateProfile', function() {
+        var fname = $('#first_name').val();
+        var lname = $('#last_name').val();
+        var email = $('#email').val();
+        var dept = $('#dept').val();
+        var bio = $('#bio').val();
+        var status = $('#status').val();
+        var url = $('#url').val();
+        var token =  $('[name=_token]').val(); 
+        var body = {name:fname, lname:lname, email:email, dept:dept, bio:bio, status:status};
+        // alert(token)
+
+         $.ajaxSetup({
+            headers: {
+                'X-XSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            },
+        });
+
+        $.ajax({ 
+          type: "POST",
+          url: url,
+          dataType: 'JSON',
+          contentType: "application/json; charset=utf-8",
+          data:JSON.stringify( body ),
+          success: function(res){
+            alert( msg );
+          }});
+
+         // $.ajax({
+         //      headers: {
+         //        'X-XSRF-TOKEN': token
+         //      },
+         //     type: "POST",
+         //     url: url,
+         //     dataType: 'json',
+         //     contentType: "application/json; charset=utf-8",
+         //     data:JSON.stringify( body ) ,
+         //     success: function( msg ) {
+         //         alert( msg );
+         //     }
+         // });
+      })
+    })
+
+
+
+
+  </script>

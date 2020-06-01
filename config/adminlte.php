@@ -256,12 +256,12 @@ return [
         ],
         [
             'text' => 'users',
-            'url'  => 'admin/users',
+            'url'  => 'users',
             'icon' => 'nav-icon fas fa-users', //fas fa-fw fa-lock
         ],
         [
             'text' => 'roles',
-            'url'  => 'admin/roles',
+            'url'  => 'roles',
             'icon' => 'nav-icon fas fa-tasks', //fas fa-fw fa-lock
         ],
         // [
